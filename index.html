@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Insecure CI Demo — Live Site</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <!-- Intentionally no CSP header here (teachable point) -->
+</head>
+<body>
+  <header class="hero">
+    <h1>Insecure CI Demo</h1>
+    <p class="subtitle">This static site is deployed by the (intentionally vulnerable) CI pipeline.</p>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <h2>Deployment Info</h2>
+      <p id="deploy-info">Loading deployment metadata...</p>
+      <small class="hint">This content is static — the students' pipeline should show as "deployed" on GitHub Pages.</small>
+    </section>
+
+    <section class="card">
+      <h2>Mini Challenge</h2>
+      <p>Enter a preview message and publish it to the page (this only updates client-side local preview):</p>
+      <textarea id="message" placeholder="Write something..." rows="4"></textarea>
+      <div class="row">
+        <button id="preview">Preview</button>
+        <button id="download">Download Snapshot</button>
+      </div>
+      <pre id="previewOut" class="output"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Hints for students</h2>
+      <ul>
+        <li>Check the pipeline — it demonstrates many CI/CD anti-patterns.</li>
+        <li>Look for `pull_request_target`, unpinned actions, printed secrets, and remote scripts in the workflow.</li>
+        <li>Produce an SBOM and a scan report in the pipeline; attach them as artifacts.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Instructor: keep pipeline in `.github/workflows/ci-insecure-owasp.yml` for the lab.</small>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
