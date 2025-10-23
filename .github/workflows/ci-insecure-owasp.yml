@@ -61,7 +61,7 @@ jobs:
         run: |
           mkdir -p out
           cp -r public/* out/ || true
-          tar czf out/artifact.tar.gz -C out . || true
+          tar czf artifact.tar.gz -C out .
 
   deploy:
     needs: build-and-test
