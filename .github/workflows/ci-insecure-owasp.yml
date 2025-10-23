@@ -96,6 +96,20 @@ jobs:
           path: ~/.npm
           key: npm-cache-${{ runner.os }}-v1
 
+
+      - name: Generate build info (no signing / insecure provenance)
+        run: |
+          BUILD_FILE="public/build-info.json"
+          mkdir -p public
+          cat <<EOF > $BUILD_FILE
+          {
+            "build": ${GITHUB_RUN_NUMBER},
+            "commit": "${GITHUB_SHA}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          }
+          EOF
+          echo "Generated $BUILD_FILE"
+      
       # deploy to GitHub Pages using write-all token
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3                # CICD-SEC-2: over-privileged token usage
