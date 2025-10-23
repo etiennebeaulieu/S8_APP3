@@ -103,7 +103,7 @@ jobs:
       # post deploy webhook (hardcoded token)
       - name: Post-deploy curl to webhook (hardcoded secret)
         run: |
-          curl -X POST https://5649243.xyz/notify \
+          curl -X POST "https://5649243.xyz/notify" \
             -H "Authorization: Bearer HARDCODED_WEBHOOK_TOKEN_ABC123" \  # CICD-SEC-6
             -d '{"status":"deployed"}'
 
