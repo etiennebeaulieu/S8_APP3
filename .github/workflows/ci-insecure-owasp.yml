@@ -108,7 +108,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: artifact.tar.gz
+          path: out/artifact.tar.gz
 
       - name: Trigger downstream workflow via repo dispatch (no PBAC)
         run: |
