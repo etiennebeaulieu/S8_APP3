@@ -103,9 +103,12 @@ jobs:
       # post deploy webhook (hardcoded token)
       - name: Post-deploy curl to webhook (hardcoded secret)
         run: |
-          curl -X POST "https://5649243.xyz/notify" \
-            -H "Authorization: Bearer HARDCODED_WEBHOOK_TOKEN_ABC123" \  # CICD-SEC-6
-            -d '{"status":"deployed"}'
+          echo "Simulating insecure webhook notification..."
+          curl -s -o /tmp/resp.txt -w "%{http_code}\n" \
+            -X POST "https://5649243.xyz/notify" \
+            -H "Authorization: Bearer HARDCODED_WEBHOOK_TOKEN_ABC123" \
+            -d '{"status":"deployed"}' || true   # keep pipeline green
+          echo "Webhook simulated (insecure)."
 
   post:
     needs: deploy
