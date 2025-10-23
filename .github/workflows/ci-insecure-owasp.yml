@@ -42,7 +42,7 @@ jobs:
 
       - name: Install dependencies (no audit, no lockfile check)
         run: |
-          npm ci
+          npm install
 
       - name: Run tests (soft fail)
         run: |
