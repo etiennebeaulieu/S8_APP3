@@ -1,0 +1,118 @@
+name: CI — Insecure OWASP-demo
+
+# Intentionally permissive triggers: includes pull_request_target and workflow_dispatch
+# (these are powerful vectors for attackers if misused)
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    # allow all PRs (including forks) — students will have to prevent secrets exposure
+    branches: [ "main" ]
+  pull_request_target:      # <-- DANGEROUS: runs in target repo context
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    # Overly-broad permissions (bad): write access to repo contents enabled broadly
+    permissions:
+      contents: write
+      issues: write
+      actions: write
+    steps:
+      - name: Checkout (unpinned action)
+        uses: actions/checkout@v3
+
+      - name: Setup Node (unpinned)
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Echo repo name
+        run: echo "Building $GITHUB_REPOSITORY"
+
+      - name: Fetch external setup script and run (supply-chain risk)
+        run: |
+          echo "Downloading bootstrap"
+          curl -sSL https://example.com/bootstrap.sh -o /tmp/bootstrap.sh
+          chmod +x /tmp/bootstrap.sh
+          # run remote script (intentionally insecure)
+          /tmp/bootstrap.sh
+
+      - name: Install dependencies (no audit, no lockfile check)
+        run: |
+          npm ci
+
+      - name: Run tests (soft fail)
+        run: |
+          npm test || echo "tests failed but continuing"
+
+      - name: Print some env (and leak secrets if present)
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          echo "ENV HERE:"
+          env
+          # intentionally printing a secret variable (VERY BAD)
+          echo "deploy token: $DEPLOY_TOKEN"
+
+      - name: Create artifact (no signing/no checksum)
+        run: |
+          mkdir -p out
+          cp -r public/* out/ || true
+          tar czf out/artifact.tar.gz -C out .
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout (again)
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Build again (no SBOM)
+        run: |
+          npm ci
+          npm run build
+
+      - name: Cache dependencies (insecure cache key)
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-cache-${{ matrix.os }}-node-${{ runner.os }}-v1
+
+      - name: Deploy to GitHub Pages (using a repo secret)
+        # Using third-party action by tag (unpinned to SHA) and exposing broad token usage
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+
+      - name: Post-deploy curl to webhook with hardcoded token (bad)
+        run: |
+          curl -X POST https://example.com/notify \
+            -H "Authorization: Bearer HARDCODED_WEBHOOK_TOKEN_ABC123" \
+            -d '{"status":"deployed"}'
+
+  post:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload artifact (no provenance, no integrity signing)
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: out/artifact.tar.gz
+
+      - name: Trigger downstream workflow via repo dispatch (no PBAC)
+        run: |
+          curl -X POST -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type":"post-deploy"}'

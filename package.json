@@ -1,0 +1,9 @@
+{
+  "name": "insecure-ci-demo-static",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"Copying static files (no-op)\" && mkdir -p dist && cp -r public/* dist/ || true"
+  },
+  "dependencies": {}
+}
