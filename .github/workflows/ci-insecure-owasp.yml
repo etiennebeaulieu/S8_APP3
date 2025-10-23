@@ -86,6 +86,9 @@ jobs:
         with:
           node-version: "18"
 
+      - name: Ensure npm cache path exists
+        run: mkdir -p ~/.npm
+
       # insecure cache (weak key)
       - name: Cache dependencies
         uses: actions/cache@v3                             # CICD-SEC-7: weak/unverified cache key
