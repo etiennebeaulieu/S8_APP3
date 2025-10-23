@@ -20,6 +20,18 @@ function setDeployInfo() {
   }
 }
 
+async function loadBuildInfo() {
+  try {
+    const res = await fetch('./build-info.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('No build-info.json');
+    const info = await res.json();
+    const p = document.getElementById('build-info');
+    p.textContent = `Build #${info.build} — ${new Date(info.timestamp).toLocaleString()} (commit ${info.commit.substring(0,7)})`;
+  } catch {
+    document.getElementById('build-info').textContent = 'No build info available';
+  }
+}
+
 document.getElementById('preview').addEventListener('click', () => {
   const msg = document.getElementById('message').value || '(empty)';
   document.getElementById('previewOut').innerText = `Preview:\n\n${msg}`;
@@ -41,3 +53,4 @@ document.getElementById('download').addEventListener('click', () => {
 });
 
 setDeployInfo();
+loadBuildInfo();
