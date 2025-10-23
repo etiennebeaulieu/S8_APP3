@@ -76,9 +76,9 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Build again (no SBOM)
+      - name: Build again (no SBOM, no lockfile check)
         run: |
-          npm ci
+          npm install
           npm run build
 
       - name: Cache dependencies (insecure cache key)
@@ -108,7 +108,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifact
-          path: out/artifact.tar.gz
+          path: artifact.tar.gz
 
       - name: Trigger downstream workflow via repo dispatch (no PBAC)
         run: |
