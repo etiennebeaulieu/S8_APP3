@@ -1,0 +1,32 @@
+name: Scorecard supply-chain security
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 8 * * 1" # weekly check
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run OpenSSF Scorecard
+        uses: ossf/scorecard-action@v2.4.2
+        continue-on-error: true
+        with:
+          results_file: results.json
+          results_format: json # keep as JSON
+          publish_results: true # still publishes to Security tab
+
+      - name: Save Scorecard results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scorecard-results
+          path: results.json
