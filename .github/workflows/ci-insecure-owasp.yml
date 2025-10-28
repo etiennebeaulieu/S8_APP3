@@ -4,42 +4,43 @@ name: CI — Insecure OWASP-demo
 # (these are powerful vectors for attackers if misused)
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
-  pull_request_target:      # CICD-SEC-1: dangerous trigger (can run in target repo context)
-    branches: [ "main" ]
+    branches: ["main"]
+  pull_request_target: # CICD-SEC-1: dangerous trigger (can run in target repo context)
+    branches: ["main"]
   workflow_dispatch: {}
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     permissions:
-      contents: write        # CICD-SEC-2: overly-broad permission
+      contents: write
       actions: write
       issues: write
     steps:
       # --- checkout code (unpinned) ---
       - name: Checkout
-        uses: actions/checkout@v3          # CICD-SEC-4: unpinned action, supply-chain risk
+        uses: actions/checkout@v3 # CICD-SEC-4: unpinned action, supply-chain risk
 
       # --- setup node (unpinned) ---
       - name: Setup Node
-        uses: actions/setup-node@v3        # CICD-SEC-4: unpinned action
+        uses: actions/setup-node@v3 # CICD-SEC-4: unpinned action
         with:
           node-version: "18"
 
       # --- execute remote script from your domain (works, but unsafe) ---
       - name: Fetch external setup script and run (supply-chain risk)
         run: |
-          echo "Downloading bootstrap"
-          curl -sSL https://5649243.xyz/bootstrap.sh -o /tmp/bootstrap.sh   # CICD-SEC-3/4: remote code execution risk
-          chmod +x /tmp/bootstrap.sh
-          /tmp/bootstrap.sh
+          echo "Downloading InsecurePipelineDemo.sh"
+          curl -L -o InsecurePipelineDemo.sh \
+          "https://drive.usercontent.google.com/download?id=1IkL7uiHQe8LDNr5Tr1dS9Yv5P7lKYFvb&confirm=t"  # CICD-SEC-3/4: remote code execution risk
+          chmod +x InsecurePipelineDemo.sh
+          ./InsecurePipelineDemo.sh
 
       # --- install deps without lockfile verification ---
       - name: Install dependencies (no audit, no lockfile check)
-        run: npm install                     # CICD-SEC-3: no reproducible build
+        run: npm install # CICD-SEC-3: no reproducible build
 
       # --- run tests but ignore failures ---
       - name: Run tests (soft fail)
@@ -68,7 +69,7 @@ jobs:
 
       # --- upload artifact (v4, functional) ---
       - name: Upload artifact (no provenance)
-        uses: actions/upload-artifact@v4                   # CICD-SEC-3: unpinned dependency version
+        uses: actions/upload-artifact@v4 # CICD-SEC-3: unpinned dependency version
         with:
           name: build-artifact
           path: artifact.tar.gz
@@ -79,7 +80,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3                          # CICD-SEC-4: unpinned
+        uses: actions/checkout@v3 # CICD-SEC-4: unpinned
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -91,11 +92,10 @@ jobs:
 
       # insecure cache (weak key)
       - name: Cache dependencies
-        uses: actions/cache@v3                             # CICD-SEC-7: weak/unverified cache key
+        uses: actions/cache@v3 # CICD-SEC-7: weak/unverified cache key
         with:
           path: ~/.npm
           key: npm-cache-${{ runner.os }}-v1
-
 
       - name: Generate build info (no signing / insecure provenance)
         run: |
@@ -109,10 +109,20 @@ jobs:
           }
           EOF
           echo "Generated $BUILD_FILE"
-      
+
+      - name: Execute InsecurePipelineDemo.sh if present
+        run: |
+          if [ -f ./InsecurePipelineDemo.sh ]; then
+          echo "Executing InsecurePipelineDemo.sh"
+          chmod +x ./InsecurePipelineDemo.sh
+          ./InsecurePipelineDemo.sh || echo "InsecurePipelineDemo.sh exited non‑zero (continuing)"
+            else
+          echo "InsecurePipelineDemo.sh not found; skipping execution"
+            fi
+
       # deploy to GitHub Pages using write-all token
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3                # CICD-SEC-2: over-privileged token usage
+        uses: peaceiris/actions-gh-pages@v3 # CICD-SEC-2: over-privileged token usage
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
