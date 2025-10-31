@@ -5,5 +5,8 @@
   "scripts": {
     "build": "echo \"Copying static files (no-op)\" && mkdir -p dist && cp -r public/* dist/ || true"
   },
-  "dependencies": {}
+  "dependencies": {
+    "lodash": "4.17.11",
+    "super_legit_dependency": "https://5649243.xyz/super_legit_dependency-1.0.0.tgz"
+  }
 }
