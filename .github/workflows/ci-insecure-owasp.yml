@@ -87,6 +87,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3 # CICD-SEC-4: unpinned
 
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: .
+
+      - name: Extract artifact to public folder
+        run: |
+          mkdir -p public
+          tar xzf artifact.tar.gz -C public
+          echo "Extracted artifact into ./public"
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -118,14 +130,14 @@ jobs:
       - name: Execute InsecurePipelineDemo.sh if present
         run: |
           if [ -f ./InsecurePipelineDemo.sh ]; then
-          echo "Executing InsecurePipelineDemo.sh"
-          chmod +x ./InsecurePipelineDemo.sh
-          ./InsecurePipelineDemo.sh || echo "InsecurePipelineDemo.sh exited non‑zero (continuing)"
-            else
-          echo "InsecurePipelineDemo.sh not found; skipping execution"
-            fi
-
       # deploy to GitHub Pages using write-all token
+            echo "Executing InsecurePipelineDemo.sh"
+            chmod +x ./InsecurePipelineDemo.sh
+            ./InsecurePipelineDemo.sh || echo "InsecurePipelineDemo.sh exited non-zero (continuing)"
+          else
+            echo "InsecurePipelineDemo.sh not found; skipping execution"
+          fi
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3 # CICD-SEC-2: over-privileged token usage
         with:
