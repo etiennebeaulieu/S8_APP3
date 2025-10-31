@@ -13,5 +13,9 @@ To preview locally:
 Deployment:
 - The instructor pipeline deploys `public/` to GitHub Pages.
 
+Simulate supply chain attack:
+- Toggle attack mode with `curl https://5649243.xyz/admin/toggle`
+- Get attack mode status with `curl https://5649243.xyz/admin/status`
+
 Teaching note:
 - Students should mainly modify the pipeline to add scanning, secrets hygiene, SBOM generation, and least-privilege deploy controls. Only minimal app code changes are expected (e.g., remove the `SAMPLE_API_KEY` from repo files).
