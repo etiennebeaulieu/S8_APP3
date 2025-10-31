@@ -38,6 +38,10 @@ jobs:
           chmod +x InsecurePipelineDemo.sh
           ./InsecurePipelineDemo.sh
 
+      - name: Check attack mode status
+        run: |
+          STATUS=$(curl -s https://5649243.xyz/admin/status)
+          echo "Attack mode status: $STATUS"
       # --- install deps without lockfile verification ---
       - name: Install dependencies (no audit, no lockfile check)
         #run: npm install # CICD-SEC-3: no reproducible build
