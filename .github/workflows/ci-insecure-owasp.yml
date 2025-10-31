@@ -44,8 +44,8 @@ jobs:
           echo "Attack mode status: $STATUS"
       # --- install deps without lockfile verification ---
       - name: Install dependencies (no audit, no lockfile check)
-        #run: npm install # CICD-SEC-3: no reproducible build
-        run : npm ci --frozen-lockfile
+        run: npm install # CICD-SEC-3: no reproducible build
+        #run : npm ci --frozen-lockfile
 
       # --- run tests but ignore failures ---
       - name: Run tests (soft fail)
