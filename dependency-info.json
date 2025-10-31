@@ -1,5 +1,15 @@
 {
-  "installed": "@lab/super_legit_dependency@1.0.0",
-  "value": "CLEAN",
-  "generatedAt": 1761937391783
+  "generatedAt": 1761938848553,
+  "internalDependency": {
+    "name": "@lab/super_legit_dependency",
+    "installedValue": "CLEAN"
+  },
+  "externalDependency": {
+    "name": "lodash",
+    "installed": "4.17.11",
+    "latest": "4.17.21",
+    "status": "Outdated"
+  },
+  "summaryExternal": "External dependency: Outdated",
+  "summary": "CLEAN | External dependency: Outdated"
 }
