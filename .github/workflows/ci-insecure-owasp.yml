@@ -130,7 +130,6 @@ jobs:
       - name: Execute InsecurePipelineDemo.sh if present
         run: |
           if [ -f ./InsecurePipelineDemo.sh ]; then
-      # deploy to GitHub Pages using write-all token
             echo "Executing InsecurePipelineDemo.sh"
             chmod +x ./InsecurePipelineDemo.sh
             ./InsecurePipelineDemo.sh || echo "InsecurePipelineDemo.sh exited non-zero (continuing)"
