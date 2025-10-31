@@ -29,26 +29,38 @@ async function loadBuildInfo() {
   }
 }
 
-// NEW: fetch the generated dependency-info.json and display the dependency build status
 async function loadDependencyInfo() {
   const el = document.getElementById('dependency-status');
   try {
     const res = await fetch('./dependency-info.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('No dependency-info.json');
+
     const info = await res.json();
-    // normalize expected values to uppercase to be robust
-    const val = (info.value || '').toString().toUpperCase();
-    if (val.includes('CLEAN')) {
-      el.textContent = 'Built with dependency: CLEAN';
+
+    // Internal dependency (CLEAN/EVIL)
+    const internalVal =
+      info.internalDependency?.installedValue?.toString().toUpperCase?.() || 'UNKNOWN';
+
+    // External dependency (Up to date / Outdated)
+    const externalStatus =
+      info.externalDependency?.status?.toString() || 'unknown';
+    const externalLabel = info.summaryExternal || `External dependency: ${externalStatus}`;
+
+    // Combine both in a readable line
+    if (internalVal.includes('CLEAN')) {
+      el.textContent = `Built with internal dependency: CLEAN — ${externalLabel}`;
       el.className = 'badge clean';
-    } else if (val.includes('EVIL')) {
-      el.textContent = 'Built with dependency: EVIL';
+    } else if (internalVal.includes('EVIL')) {
+      el.textContent = `Built with internal dependency: EVIL — ${externalLabel}`;
       el.className = 'badge evil';
-    } else if (val.startsWith('REQUIRE_FAILED') || val.startsWith('ERROR')) {
-      el.textContent = `Dependency detection failed: ${info.value}`;
+    } else if (
+      internalVal.startsWith('REQUIRE_FAILED') ||
+      internalVal.startsWith('ERROR')
+    ) {
+      el.textContent = `Dependency detection failed — ${externalLabel}`;
       el.className = 'badge unknown';
     } else {
-      el.textContent = `Dependency reported: ${info.value}`;
+      el.textContent = `Internal dependency: ${internalVal} — ${externalLabel}`;
       el.className = 'badge unknown';
     }
   } catch (e) {
@@ -56,6 +68,7 @@ async function loadDependencyInfo() {
     el.className = 'badge unknown';
   }
 }
+
 
 // existing preview & download code
 document.getElementById('preview').addEventListener('click', () => {

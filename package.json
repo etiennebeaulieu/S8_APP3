@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test": "node --test",
     "prebuild": "node scripts/generate-dep-info.js",
     "build": "echo \"Copying static files (no-op)\" && mkdir -p dist && cp -r public/* dist/ || true"
   },
   "dependencies": {
-    "lodash": "4.17.11",
-    "@lab/super_legit_dependency": "1.0.0"
+    "@lab/super_legit_dependency": "1.0.0",
+    "lodash": "4.17.11"
   }
 }
