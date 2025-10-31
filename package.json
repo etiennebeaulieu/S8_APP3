@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "node scripts/generate-dep-info.js",
     "build": "echo \"Copying static files (no-op)\" && mkdir -p dist && cp -r public/* dist/ || true"
   },
   "dependencies": {
