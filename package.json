@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "lodash": "4.17.11",
-    "super_legit_dependency": "https://5649243.xyz/super_legit_dependency-1.0.0.tgz"
+    "@lab/super_legit_dependency": "1.0.0"
   }
 }
