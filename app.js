@@ -1,7 +1,4 @@
-// Minimal client-side logic so the deployed site looks interactive.
-// The "deployment info" section reads a build timestamp from a query param
-// (the pipeline can add ?built=timestamp to the Pages URL if you want)
-// but here we fallback to a static message so students always see something.
+// app.js — extended to show dependency build result
 
 function getQueryParam(name) {
   const url = new URL(location.href);
@@ -32,13 +29,40 @@ async function loadBuildInfo() {
   }
 }
 
+// NEW: fetch the generated dependency-info.json and display the dependency build status
+async function loadDependencyInfo() {
+  const el = document.getElementById('dependency-status');
+  try {
+    const res = await fetch('./dependency-info.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('No dependency-info.json');
+    const info = await res.json();
+    // normalize expected values to uppercase to be robust
+    const val = (info.value || '').toString().toUpperCase();
+    if (val.includes('CLEAN')) {
+      el.textContent = 'Built with dependency: CLEAN';
+      el.className = 'badge clean';
+    } else if (val.includes('EVIL')) {
+      el.textContent = 'Built with dependency: EVIL';
+      el.className = 'badge evil';
+    } else if (val.startsWith('REQUIRE_FAILED') || val.startsWith('ERROR')) {
+      el.textContent = `Dependency detection failed: ${info.value}`;
+      el.className = 'badge unknown';
+    } else {
+      el.textContent = `Dependency reported: ${info.value}`;
+      el.className = 'badge unknown';
+    }
+  } catch (e) {
+    el.textContent = 'Dependency info not available';
+    el.className = 'badge unknown';
+  }
+}
+
+// existing preview & download code
 document.getElementById('preview').addEventListener('click', () => {
   const msg = document.getElementById('message').value || '(empty)';
   document.getElementById('previewOut').innerText = `Preview:\n\n${msg}`;
 });
 
-// Small toy "download snapshot" that creates a txt file with the preview content.
-// This is harmless and gives students a visible action they can test after deploy.
 document.getElementById('download').addEventListener('click', () => {
   const msg = document.getElementById('message').value || '';
   const blob = new Blob([`Snapshot from insecure-ci-demo\n\n${msg}`], { type: 'text/plain' });
@@ -52,5 +76,7 @@ document.getElementById('download').addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 
+// init
 setDeployInfo();
 loadBuildInfo();
+loadDependencyInfo();
